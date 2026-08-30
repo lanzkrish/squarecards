@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Cards — Squares & Cubes</title>
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --card: rgba(255,255,255,.82);
+    --text: #1d1d1f;
+    --muted: #86868b;
+    --blue: #0071e3;
+    --green: #34c759;
+    --red: #ff3b30;
+    --border: rgba(0,0,0,.08);
+    --shadow: 0 24px 70px rgba(0,0,0,.10);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 50% -10%, #fff 0, transparent 42%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+                 Inter, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .app {
+    width: min(760px, 100%);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    min-height: 38px;
+  }
+
+  .brand {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -.4px;
+  }
+
+  .session-stats {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .card {
+    background: var(--card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    padding: clamp(32px, 7vw, 70px);
+    text-align: center;
+  }
+
+  .mode {
+    display: inline-flex;
+    gap: 7px;
+    background: #e9e9ed;
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 38px;
+  }
+
+  .mode span {
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .mode .active {
+    background: white;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+
+  .question-label {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .question {
+    font-size: clamp(58px, 13vw, 104px);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -5px;
+    margin: 0 0 34px;
+  }
+
+  .answer {
+    width: min(430px, 100%);
+    height: 62px;
+    border: 1px solid #d2d2d7;
+    border-radius: 16px;
+    background: rgba(255,255,255,.9);
+    font-size: 25px;
+    text-align: center;
+    outline: none;
+    transition: .2s ease;
+    color: var(--text);
+  }
+
+  .answer:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 4px rgba(0,113,227,.12);
+  }
+
+  .hint {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  button {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .primary {
+    margin-top: 24px;
+    height: 52px;
+    padding: 0 28px;
+    border-radius: 999px;
+    background: var(--blue);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+
+  .primary:hover { transform: scale(1.02); }
+  .primary:active { transform: scale(.98); }
+
+  .secondary {
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .feedback {
+    min-height: 25px;
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .correct { color: var(--green); }
+  .wrong { color: var(--red); }
+
+  .start-screen .card { padding-top: 64px; padding-bottom: 64px; }
+
+  .start-title {
+    font-size: clamp(38px, 8vw, 58px);
+    letter-spacing: -3px;
+    margin: 0 0 12px;
+  }
+
+  .start-description {
+    max-width: 500px;
+    margin: 0 auto;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  .range-info {
+    margin: 28px auto 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    background: #f0f0f2;
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 13px;
+    color: #555;
+  }
+
+  .report {
+    width: min(1100px, 100%);
+  }
+
+  .report-card {
+    background: rgba(255,255,255,.88);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: clamp(22px, 5vw, 42px);
+    overflow: hidden;
+  }
+
+  .report-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .report-title {
+    margin: 0;
+    font-size: clamp(32px, 6vw, 48px);
+    letter-spacing: -2.5px;
+  }
+
+  .report-subtitle {
+    color: var(--muted);
+    margin-top: 7px;
+    font-size: 14px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+    background: white;
+  }
+
+  th, td {
+    padding: 15px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f7f7f8;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: 0; }
+
+  .need {
+    font-weight: 700;
+  }
+
+  .need.high { color: var(--red); }
+  .need.medium { color: #ff9500; }
+  .need.low { color: var(--green); }
+
+  .empty-report {
+    text-align: center;
+    padding: 42px 20px;
+    color: var(--muted);
+  }
+
+  .report-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .card { border-radius: 24px; }
+    .topbar { padding: 0 5px; }
+    .question { letter-spacing: -3px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div id="startScreen" class="start-screen">
+    <div class="card">
+      <div class="mode">
+        <span class="active">Squares 1–50</span>
+        <span class="active">Cubes 1–30</span>
+      </div>
+      <h1 class="start-title">Math Cards</h1>
+      <p class="start-description">
+        Practice like Anki. Cards you answer correctly become less frequent,
+        while cards you get wrong come back more often.
+      </p>
+      <div class="range-info">
+        <div class="pill">Squares: 1²–50²</div>
+        <div class="pill">Cubes: 1³–30³</div>
+      </div>
+      <button class="primary" id="startBtn">Start Session</button>
+    </div>
+  </div>
+
+  <div id="sessionScreen" class="hidden">
+    <div class="topbar">
+      <div class="brand">Math Cards</div>
+      <div class="session-stats" id="sessionStats">0 answered</div>
+    </div>
+
+    <div class="card">
+      <div class="mode">
+        <span id="squareMode">Square</span>
+        <span id="cubeMode">Cube</span>
+      </div>
+
+      <div class="question-label" id="questionLabel">What is</div>
+      <div class="question" id="question">12²</div>
+
+      <input
+        id="answerInput"
+        class="answer"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="Your answer"
+        aria-label="Your answer"
+      >
+
+      <div class="hint">Press Enter to submit</div>
+      <div id="feedback" class="feedback"></div>
+
+      <button class="primary" id="submitBtn">Check Answer</button>
+      <br>
+      <button class="secondary" id="endBtn">End Session</button>
+    </div>
+  </div>
+
+  <div id="reportScreen" class="report hidden">
+    <div class="report-card">
+      <div class="report-head">
+        <div>
+          <h1 class="report-title">Session Report</h1>
+          <div class="report-subtitle" id="reportSummary"></div>
+        </div>
+        <button class="primary" id="newSessionBtn">New Session</button>
+      </div>
+
+      <div id="tableContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const cards = [];
+
+  for (let n = 1; n <= 50; n++) {
+    cards.push({
+      key: `square-${n}`,
+      number: n,
+      type: "Square",
+      symbol: "²",
+      answer: n * n,
+      asked: 0,
+      correct: 0,
+      wrong: 0
+    });
+  }
+
+  for (let n = 1; n <= 30; n++) {
+    cards.push({
+      key: `cube-${n}`,
+      number: n,
+      type: "Cube",
+      symbol: "³",
+      answer: n * n * n,
+      asked: 0,
+      correct: 0,
+      wrong: 0
+    });
+  }
+
+  let currentCard = null;
+  let lastCardKey = null;
+  let totalAnswered = 0;
+  let sessionStartedAt = null;
+
+  const $ = id => document.getElementById(id);
+
+  function showScreen(name) {
+    $("startScreen").classList.toggle("hidden", name !== "start");
+    $("sessionScreen").classList.toggle("hidden", name !== "session");
+    $("reportScreen").classList.toggle("hidden", name !== "report");
+  }
+
+  // Anki-like weighted selection:
+  // - Never/rarely seen cards get a reasonable chance.
+  // - Correct answers reduce the weight.
+  // - Wrong answers substantially increase the weight.
+  // - Avoid immediately showing the exact same card twice.
+  function getWeight(card) {
+    const correctPenalty = 1 / Math.pow(1 + card.correct, 1.35);
+    const wrongBoost = 1 + (card.wrong * 3.0);
+    const exposureBoost = 1 / Math.pow(1 + card.asked * 0.15, 0.45);
+
+    return Math.max(0.03, correctPenalty * wrongBoost * exposureBoost);
+  }
+
+  function chooseNextCard() {
+    let available = cards.filter(c => c.key !== lastCardKey);
+
+    if (!available.length) available = cards;
+
+    const weighted = available.map(card => ({
+      card,
+      weight: getWeight(card)
+    }));
+
+    const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const item of weighted) {
+      random -= item.weight;
+      if (random <= 0) {
+        return item.card;
+      }
+    }
+
+    return weighted[weighted.length - 1].card;
+  }
+
+  function loadNextCard() {
+    currentCard = chooseNextCard();
+    lastCardKey = currentCard.key;
+
+    $("questionLabel").textContent = currentCard.type === "Square"
+      ? "What is the square of"
+      : "What is the cube of";
+
+    $("question").textContent = `${currentCard.number}${currentCard.symbol}`;
+
+    $("squareMode").classList.toggle("active", currentCard.type === "Square");
+    $("cubeMode").classList.toggle("active", currentCard.type === "Cube");
+
+    $("answerInput").value = "";
+    $("feedback").textContent = "";
+    $("feedback").className = "feedback";
+    $("answerInput").focus();
+  }
+
+  function updateStats() {
+    $("sessionStats").textContent =
+      `${totalAnswered} answered · ${cards.filter(c => c.asked > 0).length}/80 cards seen`;
+  }
+
+  function submitAnswer() {
+    if (!currentCard) return;
+
+    const raw = $("answerInput").value.trim().replace(/,/g, "");
+
+    if (raw === "") {
+      $("feedback").textContent = "Enter an answer first.";
+      $("feedback").className = "feedback wrong";
+      $("answerInput").focus();
+      return;
+    }
+
+    const numericAnswer = Number(raw);
+
+    currentCard.asked++;
+    totalAnswered++;
+
+    if (Number.isFinite(numericAnswer) && numericAnswer === currentCard.answer) {
+      currentCard.correct++;
+      $("feedback").textContent = "Correct ✓";
+      $("feedback").className = "feedback correct";
+    } else {
+      currentCard.wrong++;
+      $("feedback").textContent =
+        `Wrong — correct answer is ${currentCard.answer.toLocaleString()}`;
+      $("feedback").className = "feedback wrong";
+    }
+
+    updateStats();
+
+    // Small pause so the user can see the result.
+    $("answerInput").disabled = true;
+    $("submitBtn").disabled = true;
+
+    setTimeout(() => {
+      $("answerInput").disabled = false;
+      $("submitBtn").disabled = false;
+      loadNextCard();
+    }, 700);
+  }
+
+  function getNeedLevel(card) {
+    if (card.wrong === 0 && card.correct === 0) return "Not tested";
+    if (card.wrong >= 3 || (card.wrong > 0 && card.wrong >= card.correct)) return "High";
+    if (card.wrong >= 1) return "Medium";
+    return "Low";
+  }
+
+  function getAccuracy(card) {
+    if (card.asked === 0) return "—";
+    return Math.round((card.correct / card.asked) * 100) + "%";
+  }
+
+  function generateReport() {
+    const tested = cards
+      .filter(c => c.asked > 0)
+      .sort((a, b) => {
+        // Most in-need first, then wrong count, then asked count.
+        const needScore = c => {
+          if (c.wrong === 0) return 0;
+          return c.wrong * 10 - c.correct;
+        };
+        return needScore(b) - needScore(a);
+      });
+
+    const correctTotal = cards.reduce((s, c) => s + c.correct, 0);
+    const wrongTotal = cards.reduce((s, c) => s + c.wrong, 0);
+
+    $("reportSummary").textContent =
+      `${totalAnswered} questions · ${correctTotal} correct · ${wrongTotal} wrong`;
+
+    if (!tested.length) {
+      $("tableContainer").innerHTML =
+        '<div class="empty-report">No questions were answered in this session.</div>';
+      return;
+    }
+
+    let html = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>Type</th>
+              <th>Asked</th>
+              <th>Correct</th>
+              <th>Wrong</th>
+              <th>Accuracy</th>
+              <th>Need to Work On</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    for (const card of tested) {
+      const need = getNeedLevel(card);
+      const levelClass = need.toLowerCase();
+
+      html += `
+        <tr>
+          <td><strong>${card.number}${card.symbol}</strong></td>
+          <td>${card.type}</td>
+          <td>${card.asked}</td>
+          <td>${card.correct}</td>
+          <td>${card.wrong}</td>
+          <td>${getAccuracy(card)}</td>
+          <td class="need ${levelClass}">${need}</td>
+        </tr>
+      `;
+    }
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    $("tableContainer").innerHTML = html;
+  }
+
+  function startSession() {
+    cards.forEach(c => {
+      c.asked = 0;
+      c.correct = 0;
+      c.wrong = 0;
+    });
+
+    totalAnswered = 0;
+    lastCardKey = null;
+    sessionStartedAt = Date.now();
+
+    showScreen("session");
+    updateStats();
+    loadNextCard();
+  }
+
+  function endSession() {
+    if (totalAnswered === 0) {
+      if (!confirm("No answers have been recorded. End this session anyway?")) return;
+    }
+
+    generateReport();
+    showScreen("report");
+  }
+
+  $("startBtn").addEventListener("click", startSession);
+  $("submitBtn").addEventListener("click", submitAnswer);
+  $("endBtn").addEventListener("click", endSession);
+  $("newSessionBtn").addEventListener("click", () => showScreen("start"));
+
+  $("answerInput").addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      submitAnswer();
+    }
+  });
+
+  showScreen("start");
+</script>
+
+</body>
+</html>
