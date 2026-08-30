@@ -157,6 +157,10 @@
     padding: 10px 14px;
   }
 
+  #nextBtn {
+    margin-left: 8px;
+  }
+
   .feedback {
     min-height: 25px;
     margin-top: 18px;
@@ -289,6 +293,47 @@
     .topbar { padding: 0 5px; }
     .question { letter-spacing: -3px; }
   }
+
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+      display: block;
+    }
+
+    .app, .report {
+      width: 100%;
+    }
+
+    .report-card {
+      box-shadow: none;
+      background: white;
+      padding: 0;
+    }
+
+    .report-actions,
+    #newSessionBtn {
+      display: none !important;
+    }
+
+    .report-title {
+      font-size: 32px;
+    }
+
+    .table-wrap {
+      overflow: visible;
+      border: 1px solid #ddd;
+    }
+
+    table {
+      min-width: 0;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      font-size: 11px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -342,6 +387,7 @@
       <div id="feedback" class="feedback"></div>
 
       <button class="primary" id="submitBtn">Check Answer</button>
+      <button class="primary hidden" id="nextBtn">Next →</button>
       <br>
       <button class="secondary" id="endBtn">End Session</button>
     </div>
@@ -358,6 +404,10 @@
       </div>
 
       <div id="tableContainer"></div>
+
+      <div class="report-actions">
+        <button class="secondary" id="printBtn">Print Report</button>
+      </div>
     </div>
   </div>
 </div>
@@ -456,6 +506,9 @@
     $("answerInput").value = "";
     $("feedback").textContent = "";
     $("feedback").className = "feedback";
+    $("submitBtn").disabled = false;
+    $("answerInput").disabled = false;
+    $("nextBtn").classList.add("hidden");
     $("answerInput").focus();
   }
 
@@ -494,15 +547,10 @@
 
     updateStats();
 
-    // Small pause so the user can see the result.
+    // Do not auto-advance. Let the user review the result and click Next.
     $("answerInput").disabled = true;
     $("submitBtn").disabled = true;
-
-    setTimeout(() => {
-      $("answerInput").disabled = false;
-      $("submitBtn").disabled = false;
-      loadNextCard();
-    }, 700);
+    $("nextBtn").classList.remove("hidden");
   }
 
   function getNeedLevel(card) {
@@ -611,8 +659,17 @@
 
   $("startBtn").addEventListener("click", startSession);
   $("submitBtn").addEventListener("click", submitAnswer);
+
+  $("nextBtn").addEventListener("click", () => {
+    loadNextCard();
+  });
+
   $("endBtn").addEventListener("click", endSession);
   $("newSessionBtn").addEventListener("click", () => showScreen("start"));
+
+  $("printBtn").addEventListener("click", () => {
+    window.print();
+  });
 
   $("answerInput").addEventListener("keydown", event => {
     if (event.key === "Enter") {
